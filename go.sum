@@ -1,4 +1,6 @@
-github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
-github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
-golang.zabbix.com/sdk v1.2.2-0.20260105091128-40ec4ead749c h1:CJToes1oE5w4fabPzBM9VY+W2qGz8Xqt42Nrf+yFQMw=
-golang.zabbix.com/sdk v1.2.2-0.20260105091128-40ec4ead749c/go.mod h1:ugXIGbO7PRPVducHITbVWZnPM7bsvjljbWufPPk5ZFA=
+git.zabbix.com/ap/plugin-support v1.2.1 h1:hinT04FY/4t6Hcx/Jvj2cyNggvfllQ2OvzyZCTf99o0=
+git.zabbix.com/ap/plugin-support v1.2.1/go.mod h1:R3QzQWgpxlA+ddJNkOhsPTcGOVtrR69WS0hXIsnBurY=
+github.com/natefinch/npipe v0.0.0-20160621034901-c1b8fa8bdcce h1:TqjP/BTDrwN7zP9xyXVuLsMBXYMt6LLYi55PlrIcq8U=
+github.com/natefinch/npipe v0.0.0-20160621034901-c1b8fa8bdcce/go.mod h1:ifHPsLndGGzvgzcaXUvzmt6LxKT4pJ+uzEhtnMt+f7A=
+gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce h1:+JknDZhAj8YMt7GC73Ei8pv4MzjDUNPHgQWJdtMAaDU=
+gopkg.in/natefinch/npipe.v2 v2.0.0-20160621034901-c1b8fa8bdcce/go.mod h1:5AcXVHNjg+BDxry382+8OKon8SEWiKktQR07RKPsv1c=
