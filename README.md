@@ -1,12 +1,12 @@
 # Zabbix Agent 2 Plugin: Segi9
 
-This is a loadable plugin for Zabbix Agent 2, designed to make HTTP/HTTPS requests to any reachable service (localhost or remote) and return the raw JSON status response.
+This is a loadable plugin for Zabbix Agent 2, designed to make HTTP/HTTPS requests to localhost services (like Elasticsearch, NATS, etc.) and return the raw JSON status response.
 
 ## Features
 
-- **Metric**: `segi9.http`
+- **Metric**: `segi9.local.http`
 - **Dynamic Parameters**: URL, Auth Type, Username/Token, Password.
-- **TLS Security**: Automatically skips SSL/TLS verification (`InsecureSkipVerify: true`) to support self-signed certificates.
+- **TLS Security**: Automatically skips SSL/TLS verification (`InsecureSkipVerify: true`) to support self-signed certificates on localhost.
 - **Authentication**: Supports `Basic` and `Bearer` authentication.
 - **Output**: Returns the raw JSON body as a string (parsing is handled by Zabbix Server via JSONPath/LLD).
 
@@ -64,9 +64,9 @@ sudo systemctl restart zabbix-agent2
 
 ### Key Format
 
-`segi9.http[<url>, <auth_type>, <username_or_token>, <password>]`
+`segi9.local.http[<url>, <auth_type>, <username_or_token>, <password>]`
 
-- `url`: (Required) The URL to request (e.g., `https://127.0.0.1:9200/_cluster/health` or `https://example.com/api/status`).
+- `url`: (Required) The URL to request (e.g., `https://127.0.0.1:9200/_cluster/health`).
 - `auth_type`: (Optional) `none` (default), `basic`, or `bearer`.
 - `username_or_token`: (Optional) Username for Basic Auth or Token for Bearer Auth.
 - `password`: (Optional) Password for Basic Auth.
@@ -75,17 +75,17 @@ sudo systemctl restart zabbix-agent2
 
 **1. Simple Request (No Auth):**
 ```
-segi9.http[https://127.0.0.1:9200/_cluster/health]
+segi9.local.http[https://127.0.0.1:9200/_cluster/health]
 ```
 
 **2. Basic Authentication:**
 ```
-segi9.http[https://remote-host:9200/_cluster/health,basic,myuser,mypassword]
+segi9.local.http[https://127.0.0.1:9200/_cluster/health,basic,myuser,mypassword]
 ```
 
 **3. Bearer Token Authentication:**
 ```
-segi9.http[https://api.example.com/v1/status,bearer,my-secret-token]
+segi9.local.http[https://127.0.0.1:8222/varz,bearer,my-secret-token]
 ```
 
 ## Troubleshooting
@@ -93,7 +93,7 @@ segi9.http[https://api.example.com/v1/status,bearer,my-secret-token]
 You can test the plugin manually using the `zabbix_agent2` command line:
 
 ```bash
-zabbix_agent2 -t segi9.http[https://google.com]
+zabbix_agent2 -t segi9.local.http[https://google.com]
 ```
 
 Or by running the plugin binary directly (though it communicates via stdin/stdout protocol):

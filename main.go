@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"git.zabbix.com/ap/plugin-support/plugin/container"
+	"golang.zabbix.com/sdk/plugin/container"
 )
 
 func main() {
@@ -11,7 +11,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Sprintf("failed to create plugin handler %s", err.Error()))
 	}
-	impl.Logger = &h
+	impl.Logger = h
 
 	err = h.Execute()
 	if err != nil {

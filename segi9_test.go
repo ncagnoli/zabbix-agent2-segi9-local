@@ -43,37 +43,37 @@ func TestPlugin_Export(t *testing.T) {
 	}{
 		{
 			name:   "Success No Auth",
-			key:    "segi9.http",
+			key:    "segi9.local.http",
 			params: []string{ts.URL},
 			want:   `{"status":"ok"}`,
 		},
 		{
 			name:   "Success Basic Auth",
-			key:    "segi9.http",
+			key:    "segi9.local.http",
 			params: []string{ts.URL + "/basic", "basic", "user", "pass"},
 			want:   `{"status":"ok"}`,
 		},
 		{
 			name:   "Success Bearer Auth",
-			key:    "segi9.http",
+			key:    "segi9.local.http",
 			params: []string{ts.URL + "/bearer", "bearer", "token123"},
 			want:   `{"status":"ok"}`,
 		},
 		{
 			name:    "Missing URL",
-			key:     "segi9.http",
+			key:     "segi9.local.http",
 			params:  []string{},
 			wantErr: true,
 		},
 		{
 			name:    "Unsupported Auth",
-			key:     "segi9.http",
+			key:     "segi9.local.http",
 			params:  []string{ts.URL, "digest"},
 			wantErr: true,
 		},
 		{
 			name:    "Invalid URL",
-			key:     "segi9.http",
+			key:     "segi9.local.http",
 			params:  []string{"://invalid-url"},
 			wantErr: true,
 		},

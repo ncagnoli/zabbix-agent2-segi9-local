@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"git.zabbix.com/ap/plugin-support/plugin"
+	"golang.zabbix.com/sdk/plugin"
 )
 
 // Plugin defines the structure of the plugin
@@ -116,12 +116,7 @@ func (p *Plugin) Validate(privateOptions interface{}) error {
 	return nil
 }
 
-// Name returns the plugin name
-func (p *Plugin) Name() string {
-	return "Segi9"
-}
-
 func init() {
 	plugin.RegisterMetrics(&impl, "Segi9",
-		"segi9.http", "Make HTTP/HTTPS requests to any reachable service and return JSON status.")
+		"segi9.local.http", "Make HTTP/HTTPS requests to localhost services and return JSON status.")
 }
