@@ -61,6 +61,12 @@ func runPluginMode() {
 	// Ensure cleanup of the socket file on exit
 	if len(os.Args) > 1 {
 		socket := os.Args[1]
+
+		// Try to remove socket in case it was left over from a crash
+		if err := os.Remove(socket); err != nil && !os.IsNotExist(err) {
+			log.Printf("Warning: Failed to remove stale socket %s: %v", socket, err)
+		}
+
 		defer func() {
 			if err := os.Remove(socket); err != nil && !os.IsNotExist(err) {
 				log.Printf("Failed to remove socket %s: %v", socket, err)
