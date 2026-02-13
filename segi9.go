@@ -126,7 +126,7 @@ func (p *Plugin) Configure(global *plugin.GlobalOptions, privateOptions interfac
 	}
 
 	// If timeout is not set in private options, use global timeout
-	if p.config.Timeout == 0 && global.Timeout > 0 {
+	if global != nil && p.config.Timeout == 0 && global.Timeout > 0 {
 		p.config.Timeout = global.Timeout
 	}
 	log.Printf("Configuration set: Timeout=%d", p.config.Timeout)

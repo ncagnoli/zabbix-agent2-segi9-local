@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"git.zabbix.com/ap/plugin-support/plugin"
 	"git.zabbix.com/ap/plugin-support/plugin/container"
 )
 
