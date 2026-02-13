@@ -31,16 +31,14 @@ func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider)
 	log.Printf("Export called with key: %s, params count: %d", key, len(params))
 
 	if len(params) < 1 {
-		errMsg := "Missing required parameter: URL"
-		log.Printf("Error: %s", errMsg)
-		return nil, errors.New(errMsg)
+		log.Println("Error: missing URL parameter")
+		return nil, errors.New("missing URL parameter")
 	}
 
 	url := params[0]
 	if url == "" {
-		errMsg := "URL parameter cannot be empty"
-		log.Printf("Error: %s", errMsg)
-		return nil, errors.New(errMsg)
+		log.Println("Error: URL cannot be empty")
+		return nil, errors.New("URL cannot be empty")
 	}
 	log.Printf("URL: %s", url)
 
@@ -95,9 +93,8 @@ func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider)
 	case "none":
 		// Do nothing
 	default:
-		errMsg := fmt.Sprintf("unsupported auth type: %s", authType)
-		log.Printf("Error: %s", errMsg)
-		return nil, errors.New(errMsg)
+		log.Printf("Unsupported auth type: %s", authType)
+		return nil, fmt.Errorf("unsupported auth type: %s", authType)
 	}
 
 	log.Println("Sending request...")
@@ -147,6 +144,11 @@ func (p *Plugin) Name() string {
 }
 
 func init() {
+	// Simple init log, likely goes to stderr or lost if log output not set yet
+	// But since this runs before main, we can't rely on the file log yet.
+	// We can use fmt.Println to stderr.
+	// fmt.Fprintln(os.Stderr, "Segi9 plugin init") // Commented out to avoid noise if not needed
+
 	plugin.RegisterMetrics(&impl, "Segi9",
 		"segi9.http", "Make HTTP/HTTPS requests to any reachable service and return JSON status.")
 }
