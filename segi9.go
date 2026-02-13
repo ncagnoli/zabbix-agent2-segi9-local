@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -27,26 +28,34 @@ var impl Plugin
 
 // Export implements the Exporter interface
 func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider) (interface{}, error) {
+	log.Printf("Export called with key: %s, params count: %d", key, len(params))
+
 	if len(params) < 1 {
+		log.Println("Error: missing URL parameter")
 		return nil, errors.New("missing URL parameter")
 	}
 
 	url := params[0]
 	if url == "" {
+		log.Println("Error: URL cannot be empty")
 		return nil, errors.New("URL cannot be empty")
 	}
+	log.Printf("URL: %s", url)
 
 	authType := "none"
 	if len(params) > 1 && params[1] != "" {
 		authType = strings.ToLower(params[1])
+		log.Printf("AuthType: %s", authType)
 	}
 
 	var usernameOrToken, password string
 	if len(params) > 2 {
 		usernameOrToken = params[2]
+		log.Println("Username/Token provided (masked)")
 	}
 	if len(params) > 3 {
 		password = params[3]
+		log.Println("Password provided (masked)")
 	}
 
 	// Create HTTP client with insecure skip verify
@@ -65,8 +74,11 @@ func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider)
 		Timeout:   timeout,
 	}
 
+	log.Printf("Creating request to %s with timeout %v", url, timeout)
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		log.Printf("Failed to create request: %v", err)
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
@@ -81,19 +93,26 @@ func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider)
 	case "none":
 		// Do nothing
 	default:
+		log.Printf("Unsupported auth type: %s", authType)
 		return nil, fmt.Errorf("unsupported auth type: %s", authType)
 	}
 
+	log.Println("Sending request...")
 	resp, err := client.Do(req)
 	if err != nil {
+		log.Printf("Request failed: %v", err)
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
+	log.Println("Request successful, reading body...")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Printf("Failed to read response body: %v", err)
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
+
+	log.Printf("Body read successfully (%d bytes)", len(body))
 
 	// Return the raw JSON string regardless of status code, unless it's empty
 	return string(body), nil
@@ -101,6 +120,7 @@ func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider)
 
 // Configure implements the Configurator interface
 func (p *Plugin) Configure(global *plugin.GlobalOptions, privateOptions interface{}) {
+	log.Println("Configure called")
 	if privateOptions != nil {
 		p.config = *privateOptions.(*Config)
 	}
@@ -109,10 +129,12 @@ func (p *Plugin) Configure(global *plugin.GlobalOptions, privateOptions interfac
 	if p.config.Timeout == 0 && global.Timeout > 0 {
 		p.config.Timeout = global.Timeout
 	}
+	log.Printf("Configuration set: Timeout=%d", p.config.Timeout)
 }
 
 // Validate implements the Configurator interface
 func (p *Plugin) Validate(privateOptions interface{}) error {
+	log.Println("Validate called")
 	return nil
 }
 
@@ -122,6 +144,11 @@ func (p *Plugin) Name() string {
 }
 
 func init() {
+	// Simple init log, likely goes to stderr or lost if log output not set yet
+	// But since this runs before main, we can't rely on the file log yet.
+	// We can use fmt.Println to stderr.
+	// fmt.Fprintln(os.Stderr, "Segi9 plugin init") // Commented out to avoid noise if not needed
+
 	plugin.RegisterMetrics(&impl, "Segi9",
 		"segi9.http", "Make HTTP/HTTPS requests to any reachable service and return JSON status.")
 }
