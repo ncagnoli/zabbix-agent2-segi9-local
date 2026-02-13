@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -27,26 +28,36 @@ var impl Plugin
 
 // Export implements the Exporter interface
 func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider) (interface{}, error) {
+	log.Printf("Export called with key: %s, params count: %d", key, len(params))
+
 	if len(params) < 1 {
-		return nil, errors.New("missing URL parameter")
+		errMsg := "Missing required parameter: URL"
+		log.Printf("Error: %s", errMsg)
+		return nil, errors.New(errMsg)
 	}
 
 	url := params[0]
 	if url == "" {
-		return nil, errors.New("URL cannot be empty")
+		errMsg := "URL parameter cannot be empty"
+		log.Printf("Error: %s", errMsg)
+		return nil, errors.New(errMsg)
 	}
+	log.Printf("URL: %s", url)
 
 	authType := "none"
 	if len(params) > 1 && params[1] != "" {
 		authType = strings.ToLower(params[1])
+		log.Printf("AuthType: %s", authType)
 	}
 
 	var usernameOrToken, password string
 	if len(params) > 2 {
 		usernameOrToken = params[2]
+		log.Println("Username/Token provided (masked)")
 	}
 	if len(params) > 3 {
 		password = params[3]
+		log.Println("Password provided (masked)")
 	}
 
 	// Create HTTP client with insecure skip verify
@@ -65,8 +76,11 @@ func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider)
 		Timeout:   timeout,
 	}
 
+	log.Printf("Creating request to %s with timeout %v", url, timeout)
+
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
+		log.Printf("Failed to create request: %v", err)
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}
 
@@ -81,19 +95,27 @@ func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider)
 	case "none":
 		// Do nothing
 	default:
-		return nil, fmt.Errorf("unsupported auth type: %s", authType)
+		errMsg := fmt.Sprintf("unsupported auth type: %s", authType)
+		log.Printf("Error: %s", errMsg)
+		return nil, errors.New(errMsg)
 	}
 
+	log.Println("Sending request...")
 	resp, err := client.Do(req)
 	if err != nil {
+		log.Printf("Request failed: %v", err)
 		return nil, fmt.Errorf("request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
+	log.Println("Request successful, reading body...")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
+		log.Printf("Failed to read response body: %v", err)
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
+
+	log.Printf("Body read successfully (%d bytes)", len(body))
 
 	// Return the raw JSON string regardless of status code, unless it's empty
 	return string(body), nil
@@ -101,18 +123,21 @@ func (p *Plugin) Export(key string, params []string, ctx plugin.ContextProvider)
 
 // Configure implements the Configurator interface
 func (p *Plugin) Configure(global *plugin.GlobalOptions, privateOptions interface{}) {
+	log.Println("Configure called")
 	if privateOptions != nil {
 		p.config = *privateOptions.(*Config)
 	}
 
 	// If timeout is not set in private options, use global timeout
-	if p.config.Timeout == 0 && global.Timeout > 0 {
+	if global != nil && p.config.Timeout == 0 && global.Timeout > 0 {
 		p.config.Timeout = global.Timeout
 	}
+	log.Printf("Configuration set: Timeout=%d", p.config.Timeout)
 }
 
 // Validate implements the Configurator interface
 func (p *Plugin) Validate(privateOptions interface{}) error {
+	log.Println("Validate called")
 	return nil
 }
 
